@@ -1,0 +1,46 @@
+import glob
+import os
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+photo_dir="dataset/training/photo"
+photo_data_path=os.path.join(photo_dir, '*g')
+photo_files=glob.glob(photo_data_path)
+photos=[]
+for f1 in photo_files:
+    img=cv2.imread(f1)
+    photos.append(img)
+
+sketch_dir="dataset/training/sketch"
+sketch_data_path=os.path.join(sketch_dir, '*g')
+sketch_files=glob.glob(sketch_data_path)
+sketches=[]
+for f1 in sketch_files:
+    img=cv2.imread(f1)
+    sketches.append(img)
+
+photo_keypoints=[]
+photo_descriptor=[]
+sketch_keypoints=[]
+sketch_descriptor=[]
+for i,j in zip(photos,sketches):
+    training_image = cv2.cvtColor(i, cv2.COLOR_BGR2RGB)
+    training_gray = cv2.cvtColor(training_image, cv2.COLOR_RGB2GRAY)
+
+    test_image = cv2.cvtColor(j, cv2.COLOR_BGR2RGB)
+    test_gray = cv2.cvtColor(test_image, cv2.COLOR_RGB2GRAY)
+    
+
+    ## Detect keypoints and Create Descriptor
+    surf = cv2.xfeatures2d.SURF_create(800)
+    
+    train_keypoints, train_descriptor = surf.detectAndCompute(training_gray, None)
+    photo_keypoints.append(train_keypoints)
+    photo_descriptor.append(train_descriptor)
+    
+    test_keypoints, test_descriptor = surf.detectAndCompute(test_gray, None)
+    sketch_keypoints.append(test_keypoints)
+    sketch_descriptor.append(test_descriptor)
+
+#print(photo_keypoints)
